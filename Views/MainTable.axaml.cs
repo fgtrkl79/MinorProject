@@ -10,7 +10,6 @@ public partial class MainTable : UserControl
     public MainTable()
     {
         InitializeComponent();
-        
-        DataContext = new MainViewModel();
+        // DataContext задаётся извне (MainWindow) через привязку TableVm
     }
 }

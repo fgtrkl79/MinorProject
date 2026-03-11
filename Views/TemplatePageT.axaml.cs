@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace MinorProject.Views;
 
-public partial class T1 : UserControl
+public partial class TemplatePageT : UserControl
 {
-    public T1()
+    public TemplatePageT()
     {
         InitializeComponent();
     }

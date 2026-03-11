@@ -15,8 +15,8 @@
                    HorizontalAlignment="Center"
                    Margin="0,0,0,30" />
 
-        <!-- Внешняя рамка (рисует только верхнюю и левую границу) -->
-        <Border BorderBrush="Black" BorderThickness="1,1,0,0" Width="800">
+        <!-- Внешняя рамка (полная граница вокруг таблицы) -->
+        <Border BorderBrush="Black" BorderThickness="1" Width="800">
 
             <!-- Сама сетка таблицы -->
             <Grid>
@@ -39,10 +39,10 @@
 
                 <!-- Стили, чтобы не писать одно и то же для каждой ячейки -->
                 <Grid.Styles>
-                    <!-- Стиль рамки ячейки (рисует только нижнюю и правую границу) -->
+                    <!-- Стиль рамки ячейки (рисует границы со всех сторон) -->
                     <Style Selector="Border.cell">
                         <Setter Property="BorderBrush" Value="Black" />
-                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                        <Setter Property="BorderThickness" Value="1" />
                     </Style>
                     <!-- Стиль текста внутри ячейки -->
                     <Style Selector="TextBlock.cellText">

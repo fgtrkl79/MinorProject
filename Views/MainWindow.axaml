@@ -31,11 +31,11 @@
 
     <TabControl Margin="10">
         <TabItem Header="Главная" FontSize="16">
-            <views:MainTable/>
+            <views:MainTable DataContext="{Binding TableVm}"/>
         </TabItem>
         
         <TabItem Header="Т1" FontSize="16">
-            <TextBlock Text="Страница Т1 в разработке..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <views:TemplatePageT DataContext="{Binding InfoT1Vm}"/>
         </TabItem>
         
         <TabItem Header="Т2" FontSize="16">
