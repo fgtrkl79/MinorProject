@@ -107,7 +107,6 @@
                 <!-- Заглушка для Графика 3 (Верхний правый) -->
                 <Border Grid.Row="0" BorderBrush="Black" BorderThickness="1">
                     <avalonia:PieChart
-                        Grid.Row="1"
                         InitialRotation="-225"
                         MaxAngle="270"
                         MinValue="0"
@@ -132,7 +131,6 @@
                                 OuterRadiusOffset="130"
                                 MaxRadialColumnWidth="20"
                                 CornerRadius="0"/>
-
                         </avalonia:PieChart.Series>
 
                         <avalonia:PieChart.VisualElements>
