@@ -8,62 +8,49 @@ namespace MinorProject.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    public TransformerModel T1 { get; } = new ();
-    public TransformerModel T2 { get; } = new ();
+    public TransformerModel T1 { get; } = new();
+    public TransformerModel T2 { get; } = new();
 
-    // информация для страницы T1. свойство, чтобы можно было привязаться из других VM/Views
-    public TemplatePageTViewModel InfoT1 { get; } = new TemplatePageTViewModel
-    {
-        OilTemperatureText = "45°C",
-        VoltageText = "220kV"
-    };
-
-    // задел на будущее: инфа для Т2 пока пустая
-    public TemplatePageTViewModel InfoT2 { get; } = new TemplatePageTViewModel();
+    // Ссылка на ту самую модель T1, которая привязана к вкладке с ползунком
+    private readonly TemplatePageTViewModel _infoT1;
     
-    public MainViewModel()
+    // В конструкторе мы ПРИНИМАЕМ infoT1
+    public MainViewModel(TemplatePageTViewModel infoT1)
     {
-        T1.Voltage = "220 кВ";
-        T1.OilTemperature = "45 °C";
-        T1.Pressure = "Норма";
-        T1.Power = "15 МВт";
+        _infoT1 = infoT1;
 
-        T2.Voltage = "110 кВ";
-        T2.OilTemperature = "50 °C";
-        T2.Pressure = "Норма";
-        T2.Power = "10 МВт";
+        // Исходные (заглушечные) данные для Т2, так как он пока "в разработке"
+        T2.Voltage = "220 В";
+        T2.OilTemperature = "50.0 °C";
+        T2.Pressure = "4.1 атм";
+        T2.Power = "10.0 МВА";
         
         SimulateLiveUpdates();
     }
-    
+
     private async void SimulateLiveUpdates()
     {
-        var random = new Random();
-        double currentPowerT1 = 15.0; 
-        double currentTempT1 = 45.0;
-        double currentVoltageT1 = 220.0; // добавляем напряжение
-
         while (true)
         {
             await Task.Delay(500);
-            
-            currentTempT1 += (random.NextDouble() * 0.4) - 0.2;
-            currentPowerT1 += (random.NextDouble() * 2) - 1;
-            currentVoltageT1 += (random.NextDouble() * 2) - 1; // напряжение меняется на ±1 кВ
-            
-            if (currentPowerT1 < 5) currentPowerT1 = 5;
-            if (currentPowerT1 > 25) currentPowerT1 = 25;
-            if (currentVoltageT1 < 210) currentVoltageT1 = 210;
-            if (currentVoltageT1 > 240) currentVoltageT1 = 240;
-            
+
+            // Обновляем UI-поток
             Dispatcher.UIThread.Post(() =>
             {
-                        T1.Power = $"{currentPowerT1:F1} МВт";
-                T1.OilTemperature = $"{currentTempT1:F1} °C";
-                // добавляем точку в график на вкладке T1 с мощностью, температурой и напряжением
-                InfoT1.AddDataPoint(currentPowerT1, currentTempT1, currentVoltageT1);
+                // Берем живые данные из _infoT1 (где работает ползунок и автоматика)
+                T1.Power = $"{_infoT1.CurrentPower:F1} МВА";
+                T1.OilTemperature = $"{_infoT1.CurrentOilTemp:F1} °C";
+                T1.Voltage = $"{_infoT1.CurrentVoltage:F0} В";
+                
+                // Добавили давление, которое есть в методичке
+                // (Если компилятор ругается на CurrentPressure - убедитесь, что в TemplatePageTViewModel 
+                // есть строчка: public double CurrentPressure => _currentPressure;)
+                T1.Pressure = $"{_infoT1.CurrentPressure:F1} атм";
+                
+                // Для красоты добавим легкий "шум" для Т2, чтобы он тоже казался живым
+                double t2Temp = 50.0 + (new Random().NextDouble() * 0.4 - 0.2);
+                T2.OilTemperature = $"{t2Temp:F1} °C";
             });
         }
-
     }
 }

@@ -1,22 +1,21 @@
-﻿using System;
-using System.Threading.Tasks;
-using Avalonia.Threading;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MinorProject.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ObservableObject
 {
-    public MainViewModel TableVm { get; } = new (); 
-
-    // прямой доступ к InfoT1 в таблице
-    public TemplatePageTViewModel InfoT1Vm => TableVm.InfoT1;
-
-    // заглушка для T2 – пока не используется
-    public TemplatePageTViewModel InfoT2Vm => TableVm.InfoT2; 
+    // Вью-модель для вкладки Т1
+    public TemplatePageTViewModel InfoT1Vm { get; }
     
+    // Вью-модель для Главной таблицы
+    public MainViewModel TableVm { get; }
+
     public MainWindowViewModel()
     {
-        // симуляция выполняется внутри TableVm, здесь пусто
-    }
+        // 1. Создаем двигатель логики Т1 (с ползунком и графиками)
+        InfoT1Vm = new TemplatePageTViewModel();
 
+        // 2. Передаем этот ЖЕ двигатель в таблицу, чтобы она брала оттуда цифры
+        TableVm = new MainViewModel(InfoT1Vm);
+    }
 }

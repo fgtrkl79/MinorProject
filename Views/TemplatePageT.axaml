@@ -1,12 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:vm="clr-namespace:MinorProject.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="MinorProject.Views.TemplatePageT" x:DataType="vm:TemplatePageTViewModel">
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="MinorProject.Views.TemplatePageT" 
+             x:DataType="vm:TemplatePageTViewModel">
+    
     <Grid RowDefinitions="Auto, *">
         <TextBlock Grid.Row="0"
                    Text="Информация"
@@ -14,24 +15,25 @@
                    HorizontalAlignment="Center"
                    Margin="0,0,0,20"/>
         
-        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *">
+        <Grid Grid.Row="1" ColumnDefinitions="4*, Auto, 3*">
+            
+            <!-- ЛЕВАЯ ЧАСТЬ: ГРАФИКИ -->
             <Grid Grid.Column="0" RowDefinitions="*, 20, *">
                 
-                <!-- Заглушка для Графика 1 (Верхний левый) -->
-                <!-- ЗАМЕНИ BORDER НА СВОЙ КОНТРОЛ ГРАФИКА, например <lvc:CartesianChart Series="{Binding Chart1Series}" /> -->
+                <!-- График 1: Мощность -->
                 <Border Grid.Row="0" BorderBrush="Black" BorderThickness="1" Background="White">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <!-- подпись графика -->
                         <TextBlock Grid.Row="0" Text="{Binding ChartTitle1}"
                                    HorizontalAlignment="Center"
                                    Margin="5" FontSize="14"
                                    Foreground="Black"/>
                         <avalonia:CartesianChart Grid.Row="1"
                             Series="{Binding Chart1Series}" 
+                            YAxes="{Binding Chart1YAxes}"
                             TooltipPosition="Hidden" 
                             Margin="10"
                             VerticalAlignment="Stretch"
@@ -39,20 +41,20 @@
                     </Grid>
                 </Border>
 
-                <!-- Заглушка для Графика 2 (Нижний левый) -->
+                <!-- График 2: Температура -->
                 <Border Grid.Row="2" BorderBrush="Black" BorderThickness="1" Background="White">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <!-- подпись графика -->
                         <TextBlock Grid.Row="0" Text="{Binding ChartTitle2}"
                                    HorizontalAlignment="Center"
                                    Margin="5" FontSize="14"
                                    Foreground="Black"/>
                         <avalonia:CartesianChart Grid.Row="1"
-                            Series="{Binding Chart2Series}" 
+                            Series="{Binding Chart2Series}"
+                            YAxes="{Binding Chart2YAxes}"
                             TooltipPosition="Hidden" 
                             Margin="10"
                             VerticalAlignment="Stretch"
@@ -61,27 +63,45 @@
                 </Border>
             </Grid>
             
+            <!-- СРЕДНЯЯ ЧАСТЬ: ПАНЕЛЬ УПРАВЛЕНИЯ (СИТУАЦИИ) -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="30,0">
-                <TextBlock Text="ситуации" HorizontalAlignment="Center" Margin="0,0,0,10" FontSize="14"/>
+                <TextBlock Text="Ситуации" HorizontalAlignment="Center" Margin="0,0,0,15" FontSize="16" FontWeight="Bold"/>
+                
+                <Border BorderBrush="Black" BorderThickness="1" Background="#F5F5F5" Padding="10" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="Задание мощности (МВА)" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        
+                        <!-- Сам ползунок. Максимум 80, чтобы можно было проверить аварийное отключение (>63) -->
+                        <Slider Minimum="0" Maximum="80" 
+                                Value="{Binding OperatorPower}" 
+                                TickFrequency="1" 
+                                IsSnapToTickEnabled="True" 
+                                Margin="5,0"/>
+                        
+                        <!-- Текст, показывающий сколько накрутили на ползунке -->
+                        <TextBlock Text="{Binding OperatorPower, StringFormat='{}{0} МВА'}" 
+                                   HorizontalAlignment="Center" 
+                                   FontWeight="Bold" 
+                                   Foreground="DarkBlue"/>
+                    </StackPanel>
+                </Border>
                 
                 <StackPanel.Styles>
-                    <!-- Стилизуем кнопки как на картинке: прозрачный фон, черная рамка -->
                     <Style Selector="Button.situation">
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                         <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Background" Value="#F5F5F5"/>
                         <Setter Property="BorderBrush" Value="Black"/>
                         <Setter Property="BorderThickness" Value="1"/>
                         <Setter Property="Margin" Value="0,0,0,15"/>
-                        <Setter Property="Padding" Value="15,8"/>
-                        <Setter Property="CornerRadius" Value="0"/> <!-- Острые углы -->
+                        <Setter Property="Padding" Value="15,10"/>
+                        <Setter Property="CornerRadius" Value="0"/> 
+                        <Setter Property="Cursor" Value="Hand"/>
+                    </Style>
+                    <Style Selector="Button.situation:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#E0E0E0"/>
                     </Style>
                 </StackPanel.Styles>
-
-                <!-- Кнопки биндятся на команды (Command) из ViewModel -->
-                <Button Classes="situation" Command="{Binding PowerChangeCommand}">
-                    <TextBlock Text="Изменение мощности&#x0a;потребителей" TextAlignment="Center"/>
-                </Button>
                 
                 <Button Classes="situation" Content="Вкл/выкл (Системы)" Command="{Binding ToggleSystemCommand}"/>
                 
@@ -96,63 +116,59 @@
                 <Button Classes="situation" Command="{Binding FanFailureCommand}">
                     <TextBlock Text="Выход из строя&#x0a;вентилятора" TextAlignment="Center"/>
                 </Button>
-                
-                <Button
-                    Command="{Binding DoRandomChangeCommand}"
-                    Content="Change value"/>
+
+                <Button Classes="situation" Command="{Binding RepairCommand}">
+                    <TextBlock Text="Починка / Сброс аварий" TextAlignment="Center" FontWeight="Bold" Foreground="DarkGreen"/>
+                </Button>
             </StackPanel>
             
-            <Grid Grid.Column="2" RowDefinitions="*, 20, *">
+            <!-- ПРАВАЯ ЧАСТЬ: ПАНЕЛЬ "ИНФОРМАЦИЯ" (ПО МЕТОДИЧКЕ) -->
+            <Grid Grid.Column="2" RowDefinitions="Auto, 20, Auto, *">
                 
-                <!-- Заглушка для Графика 3 (Верхний правый) -->
-                <Border Grid.Row="0" BorderBrush="Black" BorderThickness="1">
-                    <avalonia:PieChart
-                        InitialRotation="-225"
-                        MaxAngle="270"
-                        MinValue="0"
-                        MaxValue="100">
-
-                        <avalonia:PieChart.Series>
-
-                            <avalonia:XamlAngularGaugeSeries
-                                GaugeValue="60"
-                                OuterRadiusOffset="130"
-                                MaxRadialColumnWidth="20"
-                                CornerRadius="0"/>
-
-                            <avalonia:XamlAngularGaugeSeries
-                                GaugeValue="30"
-                                OuterRadiusOffset="130"
-                                MaxRadialColumnWidth="20"
-                                CornerRadius="0"/>
-
-                            <avalonia:XamlAngularGaugeSeries
-                                GaugeValue="10"
-                                OuterRadiusOffset="130"
-                                MaxRadialColumnWidth="20"
-                                CornerRadius="0"/>
-                        </avalonia:PieChart.Series>
-
-                        <avalonia:PieChart.VisualElements>
-
-                            <avalonia:XamlNeedle
-                                Width="20"
-                                Value="{Binding Value}"/>
-
-                            <avalonia:XamlAngularTicks
-                                LabelsSize="16"
-                                LabelsOuterOffset="15"
-                                OuterOffset="65"
-                                TicksLength="20" />
-
-                        </avalonia:PieChart.VisualElements>
-
-                    </avalonia:PieChart>
+                <!-- Блок 1: Состояние системы и охлаждения -->
+                <Border Grid.Row="0" BorderBrush="Black" BorderThickness="1" Background="#FAFAFA" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Состояние оборудования" FontWeight="Bold" FontSize="16" Margin="0,0,0,15" HorizontalAlignment="Center"/>
+                        
+                        <!-- Статус (Авария или Норма) -->
+                        <TextBlock Text="{Binding SystemStatusText}" 
+                                   TextWrapping="Wrap" 
+                                   FontWeight="Bold" 
+                                   FontSize="16" 
+                                   Foreground="DarkRed" 
+                                   Margin="0,0,0,10"/>
+                        
+                        <!-- Статус Охлаждения -->
+                        <TextBlock Text="{Binding CoolingStatusText}" 
+                                   FontSize="15" 
+                                   FontWeight="SemiBold"
+                                   Foreground="DarkBlue"/>
+                    </StackPanel>
                 </Border>
 
-                <!-- Заглушка для Графика 4 (Нижний правый) -->
-                <Border Grid.Row="2" BorderBrush="Black" BorderThickness="1">
-                    <TextBlock Text="[ Место для Графика 4 ]" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                <!-- Блок 2: Точные показания датчиков -->
+                <Border Grid.Row="2" BorderBrush="Black" BorderThickness="1" Background="#FAFAFA" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Текущие параметры (Датчики)" FontWeight="Bold" FontSize="16" Margin="0,0,0,15" HorizontalAlignment="Center"/>
+                        
+                        <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, 10, Auto, 10, Auto, 10, Auto">
+                            <!-- Мощность -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Мощность:" FontSize="15"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentPower, StringFormat='{}{0:F1} МВА'}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            
+                            <!-- Температура -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Температура:" FontSize="15"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OilTemperatureText}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            
+                            <!-- Напряжение -->
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Напряжение НН:" FontSize="15"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding VoltageText}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            
+                            <!-- Давление -->
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Давление масла:" FontSize="15"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding PressureText}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </StackPanel>
                 </Border>
             </Grid>
             

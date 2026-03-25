@@ -15,65 +15,57 @@
                    HorizontalAlignment="Center"
                    Margin="0,0,0,30" />
 
-        <!-- Внешняя рамка (полная граница вокруг таблицы) -->
-        <Border BorderBrush="Black" BorderThickness="1" Width="800">
-
-            <!-- Сама сетка таблицы -->
+        <Border BorderBrush="Black" BorderThickness="1" Width="850">
             <Grid>
-                <!-- Настраиваем высоту строк -->
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="80" /> <!-- Заголовок таблицы -->
+                    <RowDefinition Height="70" /> <!-- Заголовок таблицы -->
                     <RowDefinition Height="60" /> <!-- Т1 -->
                     <RowDefinition Height="60" /> <!-- Т2 -->
                     <RowDefinition Height="60" /> <!-- Выход -->
                 </Grid.RowDefinitions>
 
-                <!-- Настраиваем ширину колонок -->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="1.2*" /> <!-- Сделали чуть шире для переноса текста -->
+                    <ColumnDefinition Width="1.2*" /> 
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Стили, чтобы не писать одно и то же для каждой ячейки -->
                 <Grid.Styles>
-                    <!-- Стиль рамки ячейки (рисует границы со всех сторон) -->
                     <Style Selector="Border.cell">
                         <Setter Property="BorderBrush" Value="Black" />
                         <Setter Property="BorderThickness" Value="1" />
                     </Style>
-                    <!-- Стиль текста внутри ячейки -->
                     <Style Selector="TextBlock.cellText">
                         <Setter Property="HorizontalAlignment" Value="Center" />
                         <Setter Property="VerticalAlignment" Value="Center" />
                         <Setter Property="TextAlignment" Value="Center" />
-                        <Setter Property="FontSize" Value="14" />
+                        <Setter Property="FontSize" Value="15" />
                     </Style>
                 </Grid.Styles>
 
                 <!-- ================= СТРОКА 0: ЗАГОЛОВКИ ================= -->
-                <Border Grid.Row="0" Grid.Column="0" Classes="cell">
-                    <TextBlock Text="Наименование" Classes="cellText" />
+                <!-- Обратите внимание: добавлен Background="#E8E8E8" для шапки -->
+                <Border Grid.Row="0" Grid.Column="0" Classes="cell" Background="#E8E8E8">
+                    <TextBlock Text="Наименование" Classes="cellText" FontWeight="Bold"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1" Classes="cell">
-                    <TextBlock Text="Напряжение" Classes="cellText" />
+                <Border Grid.Row="0" Grid.Column="1" Classes="cell" Background="#E8E8E8">
+                    <TextBlock Text="Напряжение" Classes="cellText" FontWeight="Bold"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="2" Classes="cell">
-                    <!-- Используем &#x0a; для переноса строки -->
-                    <TextBlock Text="Температура&#x0a;масла" Classes="cellText" />
+                <Border Grid.Row="0" Grid.Column="2" Classes="cell" Background="#E8E8E8">
+                    <TextBlock Text="Температура&#x0a;масла" Classes="cellText" FontWeight="Bold"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="3" Classes="cell">
-                    <TextBlock Text="Давление" Classes="cellText" />
+                <Border Grid.Row="0" Grid.Column="3" Classes="cell" Background="#E8E8E8">
+                    <TextBlock Text="Давление" Classes="cellText" FontWeight="Bold"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="4" Classes="cell">
-                    <TextBlock Text="Мощность" Classes="cellText" />
+                <Border Grid.Row="0" Grid.Column="4" Classes="cell" Background="#E8E8E8">
+                    <TextBlock Text="Мощность" Classes="cellText" FontWeight="Bold"/>
                 </Border>
 
                 <!-- ================= СТРОКА 1: Т1 ================= -->
                 <Border Grid.Row="1" Grid.Column="0" Classes="cell">
-                    <TextBlock Text="Т1" Classes="cellText" />
+                    <TextBlock Text="Т1" Classes="cellText" FontWeight="SemiBold"/>
                 </Border>
                 <Border Grid.Row="1" Grid.Column="1" Classes="cell">
                     <TextBlock Text="{Binding T1.Voltage}" Classes="cellText"/>
@@ -90,7 +82,7 @@
 
                 <!-- ================= СТРОКА 2: Т2 ================= -->
                 <Border Grid.Row="2" Grid.Column="0" Classes="cell">
-                    <TextBlock Text="Т2" Classes="cellText" />
+                    <TextBlock Text="Т2" Classes="cellText" FontWeight="SemiBold"/>
                 </Border>
                 <Border Grid.Row="2" Grid.Column="1" Classes="cell">
                     <TextBlock Text="{Binding T2.Voltage}" Classes="cellText"/>
@@ -106,16 +98,18 @@
                 </Border>
 
                 <!-- ================= СТРОКА 3: Выход ================= -->
-                <Border Grid.Row="3" Grid.Column="0" Classes="cell">
-                    <TextBlock Text="Выход" Classes="cellText" />
+                <Border Grid.Row="3" Grid.Column="0" Classes="cell" Background="#F9F9F9">
+                    <TextBlock Text="Выход" Classes="cellText" FontWeight="SemiBold"/>
                 </Border>
-                <Border Grid.Row="3" Grid.Column="1" Classes="cell" />
-                <Border Grid.Row="3" Grid.Column="2" Classes="cell" />
-                <Border Grid.Row="3" Grid.Column="3" Classes="cell" />
-                <Border Grid.Row="3" Grid.Column="4" Classes="cell" />
+                <Border Grid.Row="3" Grid.Column="1" Classes="cell" Background="#F9F9F9"/>
+                <Border Grid.Row="3" Grid.Column="2" Classes="cell" Background="#F9F9F9"/>
+                <Border Grid.Row="3" Grid.Column="3" Classes="cell" Background="#F9F9F9"/>
+                <!-- Ячейка "Мощность на выходе" (Если в MainViewModel есть свойство TotalPower) -->
+                <Border Grid.Row="3" Grid.Column="4" Classes="cell" Background="#F9F9F9">
+                     <TextBlock Text="—" Classes="cellText" Foreground="Gray"/>
+                </Border>
 
             </Grid>
         </Border>
     </StackPanel>
-
 </UserControl>
