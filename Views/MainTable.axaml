@@ -32,16 +32,14 @@
                     <!-- Слайдер общей мощности -->
                     <TextBlock Text="Общая потребляемая мощность (МВА)"
                                Margin="0,15,0,5" FontSize="14" />
-                    <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,5">
-                        <Slider Minimum="0" Maximum="{Binding MaxTotalDemand}"
-                                Value="{Binding TotalDemand}"
-                                TickFrequency="1"
-                                IsSnapToTickEnabled="True"
-                                Margin="0,0,10,0" />
-                        <TextBlock Text="{Binding TotalDemand, StringFormat='{}{0:F0} МВА'}"
-                                   FontSize="18" FontWeight="Bold" Foreground="DodgerBlue"
-                                   VerticalAlignment="Center" Width="80" />
-                    </Grid>
+                    <TextBlock Text="{Binding TotalDemand, StringFormat='{}{0:F0} МВА'}"
+                               FontSize="24" FontWeight="Bold" Foreground="DodgerBlue"
+                               HorizontalAlignment="Center" Margin="0,0,0,5" />
+                    <Slider Minimum="0" Maximum="{Binding MaxTotalDemand}"
+                            Value="{Binding TotalDemand}"
+                            TickFrequency="1"
+                            IsSnapToTickEnabled="True"
+                            Width="800" />
 
                     <!-- Распределение -->
                     <TextBlock Text="{Binding DistributionText}" FontSize="13" Margin="0,5,0,3" />

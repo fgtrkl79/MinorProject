@@ -34,7 +34,8 @@
                    HorizontalAlignment="Center"
                    Margin="0,0,0,20"/>
 
-        <TabControl Grid.Row="1">
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <TabControl>
             <!-- ВКЛАДКА 1: МОНИТОРИНГ -->
             <TabItem Header="Мониторинг">
                 <Grid ColumnDefinitions="4*, Auto, 3*">
@@ -84,35 +85,8 @@
                     </Grid>
 
                     <!-- СРЕДНЯЯ ЧАСТЬ: ПАНЕЛЬ УПРАВЛЕНИЯ -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="30,0">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="30,0">
                         <TextBlock Text="Ситуации" HorizontalAlignment="Center" Margin="0,0,0,15" FontSize="16" FontWeight="Bold"/>
-
-                        <Border Classes="card">
-                            <StackPanel>
-                                <Grid Margin="0,0,0,5">
-                                    <TextBlock Text="Задание мощности (МВА)" HorizontalAlignment="Center" FontWeight="SemiBold"/>
-                                    <CheckBox Content="Ручной режим"
-                                              IsChecked="{Binding IsManualMode}"
-                                              HorizontalAlignment="Right"
-                                              FontSize="12"/>
-                                </Grid>
-                                <Slider Minimum="0" Maximum="80"
-                                        Value="{Binding OperatorPower}"
-                                        TickFrequency="1"
-                                        IsSnapToTickEnabled="True"
-                                        Margin="5,0"/>
-                                <TextBlock Text="{Binding OperatorPower, StringFormat='{}{0} МВА'}"
-                                           HorizontalAlignment="Center"
-                                           FontWeight="Bold"
-                                           Foreground="DodgerBlue"/>
-                                <TextBlock Text="{Binding AllocatedPower, StringFormat='Выделено балансировщиком: {0:F1} МВА'}"
-                                           HorizontalAlignment="Center"
-                                           FontSize="12"
-                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                                           Margin="0,4,0,0"
-                                           IsVisible="{Binding !IsManualMode}"/>
-                            </StackPanel>
-                        </Border>
 
                         <Button Classes="situation" Content="Вкл/выкл (Системы)" Command="{Binding ToggleSystemCommand}"/>
 
@@ -131,6 +105,32 @@
                         <Button Classes="situation" Command="{Binding RepairCommand}">
                             <TextBlock Text="Починка / Сброс аварий" TextAlignment="Center" FontWeight="Bold" Foreground="LimeGreen"/>
                         </Button>
+
+                        <Border Classes="card" Margin="0,20,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Задание мощности (МВА)" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <CheckBox Content="Ручной режим"
+                                          IsChecked="{Binding IsManualMode}"
+                                          HorizontalAlignment="Center"
+                                          FontSize="12" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding OperatorPower, StringFormat='{}{0} МВА'}"
+                                           HorizontalAlignment="Center"
+                                           FontWeight="Bold"
+                                           FontSize="18"
+                                           Foreground="DodgerBlue"/>
+                                <Slider Minimum="0" Maximum="80"
+                                        Value="{Binding OperatorPower}"
+                                        TickFrequency="1"
+                                        IsSnapToTickEnabled="True"
+                                        Margin="5,5,5,0"/>
+                                <TextBlock Text="{Binding AllocatedPower, StringFormat='Выделено балансировщиком: {0:F1} МВА'}"
+                                           HorizontalAlignment="Center"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           Margin="0,4,0,0"
+                                           IsVisible="{Binding !IsManualMode}"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
 
                     <!-- ПРАВАЯ ЧАСТЬ: ИНФОРМАЦИЯ -->
@@ -297,5 +297,6 @@
                 </ScrollViewer>
             </TabItem>
         </TabControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
