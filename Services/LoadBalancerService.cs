@@ -1,3 +1,5 @@
+using System;
+
 namespace MinorProject.Services;
 
 public enum DistributionStrategy
@@ -7,30 +9,43 @@ public enum DistributionStrategy
     Proportional
 }
 
+public enum PowerTransferDirection
+{
+    T1ToT2,
+    T2ToT1
+}
+
 public class LoadBalancerService
 {
-    public (double t1Power, double t2Power) Distribute(
+    public (double t1Power, double t2Power, double appliedTransfer, string warning) Distribute(
         double totalDemand,
         bool t1Available, bool t2Available,
         bool t1Manual, bool t2Manual,
         double t1ManualPower, double t2ManualPower,
         double balancerMaxT1, double balancerMaxT2,
         double t2Threshold,
-        DistributionStrategy strategy)
+        DistributionStrategy strategy,
+        bool manualTransferEnabled,
+        PowerTransferDirection transferDirection,
+        double transferAmount)
     {
         if (totalDemand < 0) totalDemand = 0;
 
         double t1 = 0, t2 = 0;
 
         if (!t1Available && !t2Available)
-            return (0, 0);
+            return (0, 0, 0, manualTransferEnabled
+                ? "Ручной переброс недоступен: оба трансформатора отключены."
+                : string.Empty);
 
         // Оба ручных — возвращаем как задано
         if (t1Manual && t2Manual)
         {
             t1 = t1Available ? Clamp(t1ManualPower, 0, balancerMaxT1) : 0;
             t2 = t2Available ? Clamp(t2ManualPower, 0, balancerMaxT2) : 0;
-            return (t1, t2);
+            return manualTransferEnabled
+                ? (t1, t2, 0, "Ручной переброс недоступен, пока активен ручной режим трансформаторов.")
+                : (t1, t2, 0, string.Empty);
         }
 
         // Т1 ручной, Т2 авто
@@ -42,7 +57,9 @@ public class LoadBalancerService
                 t2 = Clamp(remaining, 0, balancerMaxT2);
             else if (!t1Available && t2Available)
                 t2 = Clamp(totalDemand, 0, balancerMaxT2);
-            return (t1, t2);
+            return manualTransferEnabled
+                ? (t1, t2, 0, "Ручной переброс недоступен, пока активен ручной режим Т1.")
+                : (t1, t2, 0, string.Empty);
         }
 
         // Т1 авто, Т2 ручной
@@ -54,12 +71,23 @@ public class LoadBalancerService
                 t1 = Clamp(remaining, 0, balancerMaxT1);
             else if (!t2Available && t1Available)
                 t1 = Clamp(totalDemand, 0, balancerMaxT1);
-            return (t1, t2);
+            return manualTransferEnabled
+                ? (t1, t2, 0, "Ручной переброс недоступен, пока активен ручной режим Т2.")
+                : (t1, t2, 0, string.Empty);
         }
 
         // Оба авто — стратегия распределения
-        return DistributeAuto(totalDemand, t1Available, t2Available,
+        (t1, t2) = DistributeAuto(totalDemand, t1Available, t2Available,
             balancerMaxT1, balancerMaxT2, t2Threshold, strategy);
+
+        if (!manualTransferEnabled || transferAmount <= 0)
+            return (t1, t2, 0, string.Empty);
+
+        return ApplyManualTransfer(
+            t1, t2,
+            t1Available, t2Available,
+            balancerMaxT1, balancerMaxT2,
+            transferDirection, transferAmount);
     }
 
     private (double t1, double t2) DistributeAuto(
@@ -137,5 +165,34 @@ public class LoadBalancerService
         if (value < min) return min;
         if (value > max) return max;
         return value;
+    }
+
+    private static (double t1Power, double t2Power, double appliedTransfer, string warning) ApplyManualTransfer(
+        double t1Power,
+        double t2Power,
+        bool t1Available,
+        bool t2Available,
+        double maxT1,
+        double maxT2,
+        PowerTransferDirection direction,
+        double transferAmount)
+    {
+        if (!t1Available || !t2Available)
+            return (t1Power, t2Power, 0, "Ручной переброс недоступен при отключенном трансформаторе.");
+
+        if (direction == PowerTransferDirection.T1ToT2)
+        {
+            double actualTransfer = Math.Min(transferAmount, Math.Min(t1Power, maxT2 - t2Power));
+            if (actualTransfer <= 0)
+                return (t1Power, t2Power, 0, "Не удалось перебросить мощность из Т1 в Т2.");
+
+            return (t1Power - actualTransfer, t2Power + actualTransfer, actualTransfer, string.Empty);
+        }
+
+        double reverseTransfer = Math.Min(transferAmount, Math.Min(t2Power, maxT1 - t1Power));
+        if (reverseTransfer <= 0)
+            return (t1Power, t2Power, 0, "Не удалось перебросить мощность из Т2 в Т1.");
+
+        return (t1Power + reverseTransfer, t2Power - reverseTransfer, reverseTransfer, string.Empty);
     }
 }
