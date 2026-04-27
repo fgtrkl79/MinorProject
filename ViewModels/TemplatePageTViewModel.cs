@@ -47,7 +47,7 @@ public partial class TemplatePageTViewModel : ObservableObject
     // --- ОСНОВНЫЕ ПАРАМЕТРЫ ---
     private double _currentPower = 25;
     private double _currentOilTemp = 45;
-    private double _currentVoltage = 220;
+    private double _currentVoltage = 110;
     private double _currentPressure = 4.0;
 
     public double CurrentPower => _currentPower;
@@ -365,7 +365,7 @@ public partial class TemplatePageTViewModel : ObservableObject
 
             OnPropertyChanged(nameof(CurrentPower));
             OilTemperatureText = $"{_currentOilTemp:F1} °C";
-            VoltageText = $"{_currentVoltage:F0} В";
+            VoltageText = $"{_currentVoltage:F1} кВ";
             PressureText = $"{_currentPressure:F1} атм";
 
             SyncTwin();
@@ -431,7 +431,7 @@ public partial class TemplatePageTViewModel : ObservableObject
 
         OperatorPower = 25;
         _currentOilTemp = 45;
-        _currentVoltage = 220;
+        _currentVoltage = _config.VoltageMax;
         _currentPressure = 4.0;
 
         SystemStatusText = "Статус: НОРМА";

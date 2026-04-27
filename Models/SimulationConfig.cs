@@ -51,10 +51,10 @@ public class SimulationConfig
     public double IdleTemperature { get; set; } = 20.0;
 
     [JsonPropertyName("voltageMin")]
-    public double VoltageMin { get; set; } = 210;
+    public double VoltageMin { get; set; } = 100;
 
     [JsonPropertyName("voltageMax")]
-    public double VoltageMax { get; set; } = 240;
+    public double VoltageMax { get; set; } = 110;
 
     [JsonPropertyName("normalPressure")]
     public double NormalPressure { get; set; } = 4.0;

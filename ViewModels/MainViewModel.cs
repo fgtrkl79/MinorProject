@@ -1,4 +1,6 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +22,9 @@ public partial class MainViewModel : ObservableObject
     private readonly TemplatePageTViewModel _infoT1;
     private readonly TemplatePageTViewModel _infoT2;
     private readonly LoadBalancerService _balancer = new();
+    private readonly Dictionary<ConsumerModel, double> _consumerEffectiveDemand = new();
+    private bool _isAutoDisconnectingConsumer;
+    private string _consumerTripWarning = string.Empty;
 
     [ObservableProperty] private double _totalDemand;
     [ObservableProperty] private double _effectiveDemand;
@@ -105,24 +110,97 @@ public partial class MainViewModel : ObservableObject
         for (int index = 0; index < initialDemand.Length; index++)
         {
             var consumer = new ConsumerModel($"Потребитель {index + 1}", initialDemand[index]);
+            consumer.CanEnableConsumer = CanEnableConsumer;
             consumer.PropertyChanged += OnConsumerPropertyChanged;
             Consumers.Add(consumer);
+            _consumerEffectiveDemand[consumer] = consumer.EffectiveDemand;
         }
     }
 
     private void OnConsumerPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (sender is not ConsumerModel consumer)
+            return;
+
+        var previousDemand = _consumerEffectiveDemand.GetValueOrDefault(consumer);
+        var currentDemand = consumer.EffectiveDemand;
+        _consumerEffectiveDemand[consumer] = currentDemand;
+
+        if (_isAutoDisconnectingConsumer)
+        {
+            RecalculateDemand();
+            return;
+        }
+
+        if (currentDemand > previousDemand)
+            _consumerTripWarning = string.Empty;
+
         RecalculateDemand();
+
+        if (currentDemand > previousDemand && TotalDemand > GetCurrentSubstationCapacity())
+        {
+            DisconnectConsumerForOverload(consumer);
+            return;
+        }
+
+        if (TotalDemand <= GetCurrentSubstationCapacity())
+        {
+            _consumerTripWarning = string.Empty;
+            RecalculateDemand();
+        }
     }
 
     private void RecalculateDemand()
     {
+        var currentCapacity = GetCurrentSubstationCapacity();
         TotalDemand = Consumers.Sum(consumer => consumer.EffectiveDemand);
-        EffectiveDemand = TotalDemand > MaxTotalDemand ? MaxTotalDemand : TotalDemand;
+        EffectiveDemand = Math.Min(TotalDemand, currentCapacity);
 
-        DemandWarning = TotalDemand > MaxTotalDemand
-            ? $"Запрос потребителей ограничен лимитом подстанции: {MaxTotalDemand:F1} МВА."
-            : string.Empty;
+        DemandWarning = !string.IsNullOrEmpty(_consumerTripWarning)
+            ? _consumerTripWarning
+            : TotalDemand > currentCapacity
+                ? $"Запрос потребителей превышает доступную мощность подстанции: {currentCapacity:F1} МВА."
+                : string.Empty;
+    }
+
+    private double GetCurrentSubstationCapacity()
+    {
+        double t1Capacity = !_infoT1.IsAvailable
+            ? 0
+            : _infoT1.IsManualMode
+                ? Math.Clamp(_infoT1.OperatorPower, 0, BalancerMaxT1)
+                : BalancerMaxT1;
+
+        double t2Capacity = !_infoT2.IsAvailable
+            ? 0
+            : _infoT2.IsManualMode
+                ? Math.Clamp(_infoT2.OperatorPower, 0, BalancerMaxT2)
+                : BalancerMaxT2;
+
+        return Math.Min(MaxTotalDemand, t1Capacity + t2Capacity);
+    }
+
+    private void DisconnectConsumerForOverload(ConsumerModel consumer)
+    {
+        _isAutoDisconnectingConsumer = true;
+        consumer.IsEnabled = false;
+        _isAutoDisconnectingConsumer = false;
+
+        _consumerEffectiveDemand[consumer] = consumer.EffectiveDemand;
+        _consumerTripWarning = $"{consumer.Name} отключен: превышена доступная мощность подстанции ({GetCurrentSubstationCapacity():F1} МВА).";
+        RecalculateDemand();
+    }
+
+    private bool CanEnableConsumer(ConsumerModel consumer)
+    {
+        if (consumer.IsBroken)
+            return false;
+
+        double currentLoadWithoutConsumer = Consumers
+            .Where(item => !ReferenceEquals(item, consumer))
+            .Sum(item => item.EffectiveDemand);
+
+        return currentLoadWithoutConsumer + consumer.RequestedPower <= GetCurrentSubstationCapacity();
     }
 
     private async void SimulateLiveUpdates()
@@ -187,7 +265,7 @@ public partial class MainViewModel : ObservableObject
 
                 T1.Power = $"{_infoT1.CurrentPower:F1} МВА";
                 T1.OilTemperature = $"{_infoT1.CurrentOilTemp:F1} °C";
-                T1.Voltage = $"{_infoT1.CurrentVoltage:F0} В";
+                T1.Voltage = $"{_infoT1.CurrentVoltage:F1} кВ";
                 T1.Pressure = $"{_infoT1.CurrentPressure:F1} атм";
 
                 if (_infoT1.Twin.IsEmergency)
@@ -201,7 +279,7 @@ public partial class MainViewModel : ObservableObject
 
                 T2.Power = $"{_infoT2.CurrentPower:F1} МВА";
                 T2.OilTemperature = $"{_infoT2.CurrentOilTemp:F1} °C";
-                T2.Voltage = $"{_infoT2.CurrentVoltage:F0} В";
+                T2.Voltage = $"{_infoT2.CurrentVoltage:F1} кВ";
                 T2.Pressure = $"{_infoT2.CurrentPressure:F1} атм";
 
                 if (_infoT2.Twin.IsEmergency)

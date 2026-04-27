@@ -160,7 +160,7 @@
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentPower, StringFormat='{}{0:F1} МВА'}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Температура:" FontSize="15"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OilTemperatureText}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Напряжение НН:" FontSize="15"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Напряжение ВН:" FontSize="15"/>
                                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding VoltageText}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Row="6" Grid.Column="0" Text="Давление масла:" FontSize="15"/>
                                     <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding PressureText}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Right"/>
@@ -191,7 +191,7 @@
                             <DataGridTextColumn Header="Время" Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss.fff}'}" Width="120"/>
                             <DataGridTextColumn Header="Мощность (МВА)" Binding="{Binding Power, StringFormat='{}{0:F2}'}" Width="120"/>
                             <DataGridTextColumn Header="Температура (°C)" Binding="{Binding OilTemperature, StringFormat='{}{0:F1}'}" Width="120"/>
-                            <DataGridTextColumn Header="Напряжение (В)" Binding="{Binding Voltage, StringFormat='{}{0:F1}'}" Width="120"/>
+                            <DataGridTextColumn Header="Напряжение (кВ)" Binding="{Binding Voltage, StringFormat='{}{0:F1}'}" Width="120"/>
                             <DataGridTextColumn Header="Давление (атм)" Binding="{Binding Pressure, StringFormat='{}{0:F1}'}" Width="120"/>
                             <DataGridTextColumn Header="Состояние" Binding="{Binding SystemState}" Width="100"/>
                             <DataGridTextColumn Header="Охлаждение" Binding="{Binding CoolingState}" Width="100"/>

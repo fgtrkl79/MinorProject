@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Media;
@@ -6,6 +7,8 @@ namespace MinorProject.Models;
 
 public partial class ConsumerModel : ObservableObject
 {
+    public Func<ConsumerModel, bool>? CanEnableConsumer { get; set; }
+
     public ConsumerModel(string name, double requestedPower = 10)
     {
         Name = name;
@@ -68,6 +71,9 @@ public partial class ConsumerModel : ObservableObject
     private void TogglePower()
     {
         if (IsBroken)
+            return;
+
+        if (!IsEnabled && CanEnableConsumer is not null && !CanEnableConsumer(this))
             return;
 
         IsEnabled = !IsEnabled;
